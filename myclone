@@ -13,9 +13,19 @@ if [ -d "$dst" ]; then
     exit -1;
 fi
 
+
+
 install -d "$dst"
 install $src/config $dst/config
-sed -e 's/^.*lxc.rootfs.*$/lxc.rootfs = '$LXC_PREFIX_ESCAPED$dst'\/rootfs/' -e 's/^.*lxc.utsname.*$/lxc.utsname = '$dst'/g' -i $dst/config
+sed -e '/^.*lxc.hook.pre-start.*$/d' \
+    -e '/^.*lxc.hook.post-stop.*$/d' \
+    -e 's/^.*lxc.rootfs.*$/lxc.rootfs = '$LXC_PREFIX_ESCAPED$dst'\/rootfs/' \
+    -e 's/^.*lxc.utsname.*$/lxc.utsname = '$dst'/g'\
+    -i $dst/config
+echo "
+lxc.hook.pre-start = /var/lib/lxc/$dst/mount-fs mount
+lxc.hook.post-stop = /var/lib/lxc/$dst/mount-fs umount
+" >> $dst/config
 install -d $dst/delta0
 install -d $dst/olwork
 install -d $dst/rootfs
