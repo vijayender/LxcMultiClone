@@ -21,3 +21,7 @@ lxc-start -n uuj -F
 # Install hadoop into uuj
 ```
   
+What it does:
+ `mount-fs` mounts multiple filesystems listed in lxc_overlay_lowers as
+  `mount -t overlay overlay -o lowerdir=/var/lib/lxc/uuhdp1/delta0:/var/lib/lxc/uuhdp/delta0:/var/lib/lxc/uu/rootfs,upperdir=delta0,workdir=olwork/ rootfs/`
+ `myclone` copies the config and barebones and updates the lxc_overlay_lowers
