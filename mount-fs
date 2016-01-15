@@ -1,0 +1,25 @@
+#!/bin/sh
+
+function join { local IFS="$1"; shift; echo "$*"; }
+
+pushd `dirname $0`
+
+LOWER_PREFIX=/var/lib/lxc/
+LOWERS=($(cat lxc_overlay_lowers))
+
+LOWER_DIR=$(join ":" $(for i in ${LOWERS[@]}; do echo $LOWER_PREFIX$i ; done))
+
+if [ "$1" == "mount" ]; then
+    modprobe overlay
+    set -x
+    mount -t overlay overlay -o lowerdir=$LOWER_DIR,upperdir=delta0,workdir=olwork/ rootfs/
+    set +x
+elif [ "$1" == "umount" ]; then
+    set -x
+    umount rootfs
+    set +x
+else
+    echo "Usage: mount-fs [mount|umount]"
+    echo " This command conviniently mounts the filesystem"
+fi
+popd

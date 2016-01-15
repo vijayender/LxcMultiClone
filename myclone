@@ -1,0 +1,30 @@
+#!/bin/bash
+set -x
+LXC_PREFIX=/var/lib/lxc/
+LXC_PREFIX_ESCAPED=${LXC_PREFIX//\//\\\/}
+if [ -z "$1" ] || [ -z "$2" ] || [ ! -d "$1"]; then
+    echo "Usage: myclone <src-container> <name-for-dest-container>"
+    exit -1;
+fi
+src=${1%/}
+dst=${2%/}
+if [ -d "$dst" ]; then
+    echo "$dst already present! Choose a new name."
+    exit -1;
+fi
+
+install -d "$dst"
+install $src/config $dst/config
+sed -e 's/^.*lxc.rootfs.*$/lxc.rootfs = '$LXC_PREFIX_ESCAPED$dst'\/rootfs/' -e 's/^.*lxc.utsname.*$/lxc.utsname = '$dst'/g' -i $dst/config
+install -d $dst/delta0
+install -d $dst/olwork
+install -d $dst/rootfs
+ln -s $LXC_PREFIX"mount-fs" $dst/mount-fs
+install -d $dst/delta0/etc/
+echo $dst > $dst/delta0/etc/hostname
+if [ -e "$src/lxc_overlay_lowers" ]; then
+    echo $src/delta0 > $dst/lxc_overlay_lowers
+    cat $src/lxc_overlay_lowers >> $dst/lxc_overlay_lowers
+else
+    echo $src/rootfs > $dst/lxc_overlay_lowers
+fi
