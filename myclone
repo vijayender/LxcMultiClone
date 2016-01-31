@@ -36,11 +36,11 @@ if [ -e "$src/lxc_overlay_lowers" ]; then
     # The src container itself is a snapshot clone.
     echo $src/delta0 > $dst/lxc_overlay_lowers
     cat $src/lxc_overlay_lowers >> $dst/lxc_overlay_lowers
-    install $src/delta0/etc/hosts >> $dst/delta0/etc/hosts
+    install $src/delta0/etc/hosts $dst/delta0/etc/hosts
 else
     # The src container is not a snapshot clone.
     echo $src/rootfs > $dst/lxc_overlay_lowers
-    install $src/rootfs/etc/hosts >> $dst/delta0/etc/hosts
+    install $src/rootfs/etc/hosts $dst/delta0/etc/hosts
 fi
 # Fix for renaming hosts file in ubuntu based machines
 sed -e 's/\(127\.0\.1\.1 *\)'$src'/\1'$dst'/g' -i $dst/delta0/etc/hosts
